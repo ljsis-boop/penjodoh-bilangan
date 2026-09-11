@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>量词学习 - 弱生版 | Penjodoh Bilangan</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+  }
+
+  body {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .app {
+    background: #ffffff;
+    width: 100%;
+    max-width: 700px;
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    background: #e0e0e0;
+    height: 14px;
+    width: 100%;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    height: 100%;
+    width: 0%;
+    transition: width 0.4s ease;
+    border-radius: 0 10px 10px 0;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 18px 25px;
+    text-align: center;
+  }
+  .header h1 { font-size: 22px; margin-bottom: 4px; }
+  .header p { font-size: 14px; opacity: 0.9; }
+
+  .content {
+    padding: 25px;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .section-tag {
+    display: inline-block;
+    background: #ff9800;
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    align-self: center;
+  }
+
+  .question {
+    font-size: 24px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+
+  .sub-instruction {
+    font-size: 15px;
+    color: #777;
+    text-align: center;
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .image-box { text-align: center; margin-bottom: 20px; }
+  .image-box img {
+    max-width: 220px;
+    width: 100%;
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  }
+  .emoji-big { font-size: 90px; line-height: 1.2; }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 10px;
+  }
+  .option-btn {
+    background: #f5f7ff;
+    border: 3px solid #c5cae9;
+    border-radius: 16px;
+    padding: 18px;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-weight: bold;
+    color: #3f51b5;
+  }
+  .option-btn:hover { background: #e8eaf6; transform: scale(1.02); }
+  .option-btn.correct { background: #c8e6c9; border-color: #4CAF50; color: #2e7d32; }
+  .option-btn.wrong { background: #ffcdd2; border-color: #e53935; color: #c62828; }
+  .option-btn:disabled { cursor: not-allowed; opacity: 0.85; }
+
+  .match-area { display: flex; justify-content: space-between; gap: 15px; margin-top: 10px; }
+  .match-column { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .match-item {
+    background: #fff3e0;
+    border: 3px solid #ffb74d;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 20px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+    color: #e65100;
+    transition: all 0.2s;
+  }
+  .match-item.selected { background: #ffe082; border-color: #ff6f00; transform: scale(1.05); }
+  .match-item.matched {
+    background: #c8e6c9;
+    border-color: #4CAF50;
+    color: #2e7d32;
+    cursor: default;
+    opacity: 0.7;
+  }
+  .match-item.shake { animation: shake 0.4s; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  .fill-blank { text-align: center; font-size: 26px; margin: 20px 0; color: #333; }
+  .fill-blank input {
+    width: 90px;
+    height: 50px;
+    font-size: 24px;
+    text-align: center;
+    border: 3px solid #7986cb;
+    border-radius: 12px;
+    outline: none;
+    margin: 0 6px;
+    color: #3f51b5;
+    font-weight: bold;
+  }
+  .fill-blank input:focus { border-color: #3f51b5; box-shadow: 0 0 8px rgba(63,81,181,0.4); }
+
+  .feedback {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #e8f5e9; color: #2e7d32; }
+  .feedback.no { background: #ffebee; color: #c62828; }
+
+  .hint-btn {
+    background: #fff9c4;
+    border: 2px dashed #fbc02d;
+    color: #f57f17;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 15px;
+    cursor: pointer;
+    margin: 12px auto 0;
+    display: block;
+    font-weight: bold;
+  }
+  .hint-text {
+    display: none;
+    text-align: center;
+    background: #fffde7;
+    color: #f57f17;
+    padding: 12px;
+    border-radius: 12px;
+    margin-top: 10px;
+    font-size: 16px;
+  }
+  .hint-text.show { display: block; }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 25px 25px;
+    gap: 12px;
+  }
+  .btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(102,126,234,0.4); }
+  .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-secondary { background: #eceff1; color: #546e7a; }
+  .btn-secondary:hover { background: #cfd8dc; }
+
+  .result { text-align: center; padding: 20px; }
+  .result .score { font-size: 60px; font-weight: bold; color: #4CAF50; margin: 15px 0; }
+  .result .score.low { color: #e53935; }
+  .result .msg { font-size: 22px; margin-bottom: 20px; color: #333; }
+  .result .stars { font-size: 40px; margin: 15px 0; }
+
+  /* ===== Jotform 区域 ===== */
+  .jotform-section {
+    padding: 25px;
+    border-top: 4px dashed #c5cae9;
+    margin-top: 10px;
+    background: #fafbff;
+  }
+  .jotform-section h2 {
+    text-align: center;
+    color: #667eea;
+    margin-bottom: 10px;
+    font-size: 22px;
+  }
+  .jotform-section p {
+    text-align: center;
+    color: #777;
+    margin-bottom: 18px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .jotform-wrapper {
+    background: white;
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 500px) {
+    .question { font-size: 20px; }
+    .option-btn { font-size: 18px; padding: 15px; }
+    .match-item { font-size: 17px; padding: 13px; }
+    .fill-blank { font-size: 22px; }
+    .fill-blank input { width: 75px; height: 45px; font-size: 20px; }
+    .header h1 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- 进度条 -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- 头部 -->
+  <div class="header">
+    <h1>量词学习 · Penjodoh Bilangan</h1>
+    <p>弱生版 · Untuk Murid Lemah</p>
+  </div>
+
+  <!-- 内容区 -->
+  <div class="content" id="content"></div>
+
+  <!-- 导航 -->
+  <div class="nav" id="nav">
+    <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()">← 上一页</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">下一页 →</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- 👇 Jotform 嵌入区（页面底部）👇 -->
+  <!-- ============================================ -->
+  <div class="jotform-section">
+    <h2>📝 Jotform 练习</h2>
+    <p>
+      请在下面完成 Jotform 表单。<br>
+      Sila selesaikan borang Jotform di bawah.
+    </p>
+    <div class="jotform-wrapper">
+      <script type="text/javascript" src="https://form.jotform.com/jsform/262531780325051"></script>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   数据：每一步的内容
+   ============================================================ */
+const steps = [
+
+  {
+    type: "induction",
+    tag: "Induksi Set · 导入",
+    render: () => `
+      <span class="section-tag">Induksi Set · 导入</span>
+      <div class="image-box"><div class="emoji-big">🌙</div></div>
+      <div class="question">一（ ）月亮</div>
+      <div class="sub-instruction">Satu ( ) bulan.<br>Pilih jawapan yang betul. 选择正确的答案。</div>
+      <div class="options">
+        <button class="option-btn" onclick="checkInduction(this, false)">个</button>
+        <button class="option-btn" onclick="checkInduction(this, true)">轮</button>
+      </div>
+      <div class="feedback" id="fb1"></div>
+      <button class="hint-btn" onclick="toggleHint('hint1')">💡 提示 Hint</button>
+      <div class="hint-text" id="hint1">月亮是圆的，用「轮」。<br>Bulan bulat, guna 「轮」。</div>
+    `,
+    validate: () => inductionDone
+  },
+
+  {
+    type: "induction2",
+    tag: "Induksi Set · 导入",
+    render: () => `
+      <span class="section-tag">Induksi Set · 导入</span>
+      <div class="image-box"><div class="emoji-big">🌅</div></div>
+      <div class="question">一（ ）夕阳</div>
+      <div class="sub-instruction">Satu ( ) matahari terbenam.<br>Pilih jawapan yang betul. 选择正确的答案。</div>
+      <div class="options">
+        <button class="option-btn" onclick="checkInduction2(this, true)">抹</button>
+        <button class="option-btn" onclick="checkInduction2(this, false)">片</button>
+      </div>
+      <div class="feedback" id="fb2"></div>
+      <button class="hint-btn" onclick="toggleHint('hint2')">💡 提示 Hint</button>
+      <div class="hint-text" id="hint2">夕阳像一抹色彩，用「抹」。<br>Senja seperti sapuan warna, guna 「抹」。</div>
+    `,
+    validate: () => induction2Done
+  },
+
+  {
+    type: "teach",
+    tag: "Aktiviti · 活动",
+    render: () => `
+      <span class="section-tag">Aktiviti · 活动</span>
+      <div class="sub-instruction">学习这 3 个量词：<br>Belajar 3 penjodoh bilangan ini:</div>
+      <div style="display:flex; flex-direction:column; gap:16px; margin-top:10px;">
+        <div style="background:#e3f2fd; border-radius:16px; padding:16px; text-align:center; border:3px solid #64b5f6;">
+          <div style="font-size:45px;">🌙</div>
+          <div style="font-size:24px; font-weight:bold; color:#1565c0; margin-top:6px;">一轮明月</div>
+          <div style="font-size:15px; color:#555;">seulas bulan</div>
+        </div>
+        <div style="background:#fff3e0; border-radius:16px; padding:16px; text-align:center; border:3px solid #ffb74d;">
+          <div style="font-size:45px;">🌅</div>
+          <div style="font-size:24px; font-weight:bold; color:#e65100; margin-top:6px;">一抹夕阳</div>
+          <div style="font-size:15px; color:#555;">sejoli senja</div>
+        </div>
+        <div style="background:#e8f5e9; border-radius:16px; padding:16px; text-align:center; border:3px solid #81c784;">
+          <div style="font-size:45px;">🌳</div>
+          <div style="font-size:24px; font-weight:bold; color:#2e7d32; margin-top:6px;">一片树林</div>
+          <div style="font-size:15px; color:#555;">sebidang hutan</div>
+        </div>
+      </div>
+      <div class="sub-instruction" style="margin-top:18px;">记住了吗？接下来做配对游戏！<br>Sudah ingat? Mari buat permainan padanan!</div>
+    `,
+    validate: () => true
+  },
+
+  {
+    type: "match",
+    tag: "Aktiviti · 活动",
+    render: () => `
+      <span class="section-tag">Aktiviti · 活动</span>
+      <div class="sub-instruction">把量词和图片配对。<br>Padankan penjodoh bilangan dengan gambar.</div>
+      <div class="match-area">
+        <div class="match-column" id="leftCol">
+          <div class="match-item" data-key="lun" onclick="selectMatch(this)">轮</div>
+          <div class="match-item" data-key="mo" onclick="selectMatch(this)">抹</div>
+          <div class="match-item" data-key="pian" onclick="selectMatch(this)">片</div>
+          <div class="match-item" data-key="ge" onclick="selectMatch(this)">个</div>
+        </div>
+        <div class="match-column" id="rightCol">
+          <div class="match-item" data-key="ge" onclick="selectMatch(this)">⭐ 星星</div>
+          <div class="match-item" data-key="pian" onclick="selectMatch(this)">🌳 树林</div>
+          <div class="match-item" data-key="lun" onclick="selectMatch(this)">🌙 明月</div>
+          <div class="match-item" data-key="mo" onclick="selectMatch(this)">🌅 夕阳</div>
+        </div>
+      </div>
+      <div class="feedback" id="fbMatch"></div>
+      <button class="hint-btn" onclick="toggleHint('hintMatch')">💡 提示 Hint</button>
+      <div class="hint-text" id="hintMatch">
+        轮 → 明月（月亮）<br>
+        抹 → 夕阳（晚霞）<br>
+        片 → 树林（大片）<br>
+        个 → 星星（圆形小东西）
+      </div>
+    `,
+    validate: () => matchDone
+  },
+
+  {
+    type: "fill",
+    tag: "Latihan · 练习",
+    render: () => `
+      <span class="section-tag">Latihan · 练习</span>
+      <div class="sub-instruction">填入正确的量词。<br>Isi tempat kosong dengan penjodoh bilangan yang betul.</div>
+      <div class="fill-blank">一 <input type="text" id="fill1" maxlength="2" placeholder="?"> 明月</div>
+      <div class="fill-blank">一 <input type="text" id="fill2" maxlength="2" placeholder="?"> 夕阳</div>
+      <div class="feedback" id="fbFill"></div>
+      <button class="hint-btn" onclick="toggleHint('hintFill')">💡 提示 Hint</button>
+      <div class="hint-text" id="hintFill">明月用「轮」，夕阳用「抹」。</div>
+    `,
+    validate: () => fillDone
+  },
+
+  {
+    type: "quiz",
+    tag: "Latihan · 练习",
+    render: () => `
+      <span class="section-tag">Latihan · 练习</span>
+      <div class="question">一（ ）树林</div>
+      <div class="sub-instruction">Pilih jawapan yang betul. 选择正确的答案。</div>
+      <div class="options">
+        <button class="option-btn" onclick="checkQuiz(this, true)">片</button>
+        <button class="option-btn" onclick="checkQuiz(this, false)">个</button>
+      </div>
+      <div class="feedback" id="fbQuiz"></div>
+      <button class="hint-btn" onclick="toggleHint('hintQuiz')">💡 提示 Hint</button>
+      <div class="hint-text" id="hintQuiz">树林是一大片，用「片」。</div>
+    `,
+    validate: () => quizDone
+  },
+
+  {
+    type: "result",
+    tag: "Selesai · 完成",
+    render: () => {
+      const total = 7;
+      const score = Math.round((scoreCount / total) * 100);
+      const pass = score >= 70;
+      let stars = "";
+      if (score >= 90) stars = "⭐⭐⭐";
+      else if (score >= 70) stars = "⭐⭐";
+      else stars = "⭐";
+      return `
+        <div class="result">
+          <span class="section-tag">Selesai · 完成</span>
+          <div class="stars">${stars}</div>
+          <div class="score ${pass ? '' : 'low'}">${score}%</div>
+          <div class="msg">${pass ? '很好！你掌握了量词！<br>Bagus! Anda telah menguasai penjodoh bilangan!' : '再试一次！<br>Cuba lagi!'}</div>
+          <div style="font-size:16px; color:#666; margin-top:10px;">
+            你答对了 ${scoreCount} / ${total} 题<br>
+            Anda betul ${scoreCount} / ${total} soalan
+          </div>
+          <button class="btn btn-primary" style="margin-top:25px;" onclick="restart()">🔄 再试一次 · Cuba lagi</button>
+          <div style="margin-top:25px; font-size:15px; color:#888;">
+            👇 请继续往下做 Jotform 练习<br>
+            Sila teruskan ke latihan Jotform di bawah
+          </div>
+        </div>
+      `;
+    },
+    validate: () => true
+  }
+];
+
+/* ============================================================
+   状态变量
+   ============================================================ */
+let currentStep = 0;
+let inductionDone = false;
+let induction2Done = false;
+let matchDone = false;
+let fillDone = false;
+let quizDone = false;
+let scoreCount = 0;
+let matchedPairs = 0;
+let selectedLeft = null;
+let selectedRight = null;
+
+/* ============================================================
+   渲染
+   ============================================================ */
+function render() {
+  const content = document.getElementById("content");
+  const step = steps[currentStep];
+  content.innerHTML = step.render();
+
+  const progress = ((currentStep) / (steps.length - 1)) * 100;
+  document.getElementById("progressFill").style.width = progress + "%";
+
+  document.getElementById("prevBtn").disabled = currentStep === 0;
+
+  const nextBtn = document.getElementById("nextBtn");
+  if (currentStep === steps.length - 1) {
+    nextBtn.style.display = "none";
+  } else {
+    nextBtn.style.display = "block";
+    if (step.validate && !step.validate()) {
+      nextBtn.disabled = true;
+    } else {
+      nextBtn.disabled = false;
+    }
+  }
+}
+
+/* ============================================================
+   导航
+   ============================================================ */
+function nextStep() {
+  const step = steps[currentStep];
+  if (step.validate && !step.validate()) return;
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+    render();
+    window.scrollTo(0, 0);
+  }
+}
+
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    render();
+    window.scrollTo(0, 0);
+  }
+}
+
+function restart() {
+  currentStep = 0;
+  inductionDone = false;
+  induction2Done = false;
+  matchDone = false;
+  fillDone = false;
+  quizDone = false;
+  scoreCount = 0;
+  matchedPairs = 0;
+  selectedLeft = null;
+  selectedRight = null;
+  render();
+}
+
+/* ============================================================
+   Induksi Set 第一题
+   ============================================================ */
+function checkInduction(btn, isCorrect) {
+  const fb = document.getElementById("fb1");
+  const buttons = btn.parentElement.querySelectorAll(".option-btn");
+  buttons.forEach(b => b.disabled = true);
+
+  if (isCorrect) {
+    btn.classList.add("correct");
+    fb.textContent = "✅ 对了！一轮明月 · Betul!";
+    fb.className = "feedback show ok";
+    inductionDone = true;
+    scoreCount++;
+  } else {
+    btn.classList.add("wrong");
+    fb.textContent = "❌ 再想想，月亮是圆的，用「轮」。";
+    fb.className = "feedback show no";
+    buttons.forEach(b => { if (b.textContent === "轮") b.classList.add("correct"); });
+    inductionDone = true;
+  }
+  document.getElementById("nextBtn").disabled = false;
+}
+
+/* ============================================================
+   Induksi Set 第二题
+   ============================================================ */
+function checkInduction2(btn, isCorrect) {
+  const fb = document.getElementById("fb2");
+  const buttons = btn.parentElement.querySelectorAll(".option-btn");
+  buttons.forEach(b => b.disabled = true);
+
+  if (isCorrect) {
+    btn.classList.add("correct");
+    fb.textContent = "✅ 对了！一抹夕阳 · Betul!";
+    fb.className = "feedback show ok";
+    induction2Done = true;
+    scoreCount++;
+  } else {
+    btn.classList.add("wrong");
+    fb.textContent = "❌ 再想想，夕阳像一抹色彩，用「抹」。";
+    fb.className = "feedback show no";
+    buttons.forEach(b => { if (b.textContent === "抹") b.classList.add("correct"); });
+    induction2Done = true;
+  }
+  document.getElementById("nextBtn").disabled = false;
+}
+
+/* ============================================================
+   配对活动
+   ============================================================ */
+function selectMatch(el) {
+  if (el.classList.contains("matched")) return;
+  const isLeft = el.parentElement.id === "leftCol";
+
+  if (isLeft) {
+    if (selectedLeft) selectedLeft.classList.remove("selected");
+    selectedLeft = el;
+  } else {
+    if (selectedRight) selectedRight.classList.remove("selected");
+    selectedRight = el;
+  }
+  el.classList.add("selected");
+
+  if (selectedLeft && selectedRight) checkMatch();
+}
+
+function checkMatch() {
+  const fb = document.getElementById("fbMatch");
+  const leftKey = selectedLeft.dataset.key;
+  const rightKey = selectedRight.dataset.key;
+
+  if (leftKey === rightKey) {
+    selectedLeft.classList.remove("selected");
+    selectedRight.classList.remove("selected");
+    selectedLeft.classList.add("matched");
+    selectedRight.classList.add("matched");
+    matchedPairs++;
+    scoreCount++;
+    fb.textContent = "✅ 配对成功！Padanan betul!";
+    fb.className = "feedback show ok";
+    selectedLeft = null;
+    selectedRight = null;
+
+    if (matchedPairs === 4) {
+      matchDone = true;
+      fb.textContent = "🎉 全部配对成功！Semua padanan betul!";
+      document.getElementById("nextBtn").disabled = false;
+    }
+  } else {
+    const l = selectedLeft, r = selectedRight;
+    l.classList.add("shake");
+    r.classList.add("shake");
+    fb.textContent = "❌ 不对，再试试。Salah, cuba lagi.";
+    fb.className = "feedback show no";
+    setTimeout(() => {
+      l.classList.remove("shake", "selected");
+      r.classList.remove("shake", "selected");
+      selectedLeft = null;
+      selectedRight = null;
+    }, 500);
+  }
+}
+
+/* ============================================================
+   填空练习
+   ============================================================ */
+function checkFill() {
+  const fb = document.getElementById("fbFill");
+  const a1 = document.getElementById("fill1").value.trim();
+  const a2 = document.getElementById("fill2").value.trim();
+
+  let correct = 0;
+  if (a1 === "轮") correct++;
+  if (a2 === "抹") correct++;
+
+  if (correct === 2) {
+    fb.textContent = "✅ 两题都对！Kedua-dua betul!";
+    fb.className = "feedback show ok";
+    fillDone = true;
+    scoreCount += 2;
+    document.getElementById("nextBtn").disabled = false;
+  } else {
+    fb.textContent = `❌ 对了 ${correct}/2 题。正确答案：一轮明月、一抹夕阳。`;
+    fb.className = "feedback show no";
+    fillDone = true;
+    scoreCount += correct;
+    document.getElementById("nextBtn").disabled = false;
+  }
+}
+
+const originalRender = render;
+render = function() {
+  originalRender();
+  const f1 = document.getElementById("fill1");
+  const f2 = document.getElementById("fill2");
+  if (f1 && f2) {
+    f1.addEventListener("input", checkFill);
+    f2.addEventListener("input", checkFill);
+  }
+};
+
+/* ============================================================
+   选择题
+   ============================================================ */
+function checkQuiz(btn, isCorrect) {
+  const fb = document.getElementById("fbQuiz");
+  const buttons = btn.parentElement.querySelectorAll(".option-btn");
+  buttons.forEach(b => b.disabled = true);
+
+  if (isCorrect) {
+    btn.classList.add("correct");
+    fb.textContent = "✅ 对了！一片树林 · Betul!";
+    fb.className = "feedback show ok";
+    quizDone = true;
+    scoreCount++;
+  } else {
+    btn.classList.add("wrong");
+    fb.textContent = "❌ 再想想，树林是一大片，用「片」。";
+    fb.className = "feedback show no";
+    buttons.forEach(b => { if (b.textContent === "片") b.classList.add("correct"); });
+    quizDone = true;
+  }
+  document.getElementById("nextBtn").disabled = false;
+}
+
+/* ============================================================
+   提示
+   ============================================================ */
+function toggleHint(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle("show");
+}
+
+/* ============================================================
+   启动
+   ============================================================ */
+render();
+</script>
+</body>
+</html>
